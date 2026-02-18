@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { AlertTriangle, Send, Search, Filter, Mail } from 'lucide-react';
 import { mockTrainings, defaultEmailTemplates, type Training } from '@/lib/mock-data';
+import { sendO365Email } from '@/lib/api/o365-email';
 import SourceBadge from '@/components/SourceBadge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -78,12 +79,24 @@ export default function IncompleteTrainings() {
     }
   };
 
-  const handleSendEmail = () => {
-    const recipients = incompleteTrainings.filter(t => selected.has(t.id));
-    toast({
-      title: 'Nudge emails sent!',
-      description: `Sent to ${recipients.length} employee(s) via MS O365.`,
-    });
+  const handleSendEmail = async () => {
+    const recipients = incompleteTrainings
+      .filter(t => selected.has(t.id))
+      .map(t => ({ name: t.employeeName, email: t.employeeEmail }));
+
+    try {
+      const result = await sendO365Email({
+        to: recipients,
+        subject: emailSubject,
+        body: emailBody,
+      });
+      toast({
+        title: 'Nudge emails sent!',
+        description: `Sent to ${result.sent} employee(s) via MS O365.${result.failed > 0 ? ` ${result.failed} failed.` : ''}`,
+      });
+    } catch (err: any) {
+      toast({ title: 'Email failed', description: err.message, variant: 'destructive' });
+    }
     setEmailOpen(false);
     setSelected(new Set());
   };
