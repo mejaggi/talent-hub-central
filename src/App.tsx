@@ -8,7 +8,7 @@ import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import UdemyLicenses from "@/pages/UdemyLicenses";
 import TopLearners from "@/pages/TopLearners";
-import Preferences from "@/pages/Preferences";
+import IncompleteTrainings from "@/pages/IncompleteTrainings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -25,7 +25,7 @@ const App = () => (
               <Route path="/" element={<Dashboard />} />
               <Route path="/udemy-licenses" element={<UdemyLicenses />} />
               <Route path="/top-learners" element={<TopLearners />} />
-              <Route path="/preferences" element={<Preferences />} />
+              <Route path="/incomplete-trainings" element={<IncompleteTrainings />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
