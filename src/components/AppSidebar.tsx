@@ -1,18 +1,16 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, BookOpen, Trophy, Settings, Sun, Moon, GraduationCap } from 'lucide-react';
-import { useTheme } from '@/hooks/use-theme';
+import { LayoutDashboard, BookOpen, Trophy, AlertTriangle, Sun, Moon, GraduationCap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { to: '/', icon: LayoutDashboard, label: 'Dashboard' },
   { to: '/udemy-licenses', icon: BookOpen, label: 'Udemy Licenses' },
   { to: '/top-learners', icon: Trophy, label: 'Top Learners' },
-  { to: '/preferences', icon: Settings, label: 'Preferences' },
+  { to: '/incomplete-trainings', icon: AlertTriangle, label: 'Incomplete Trainings' },
 ];
 
 export default function AppSidebar() {
   const location = useLocation();
-  const { theme, toggleTheme } = useTheme();
 
   return (
     <aside className="fixed left-0 top-0 z-40 flex h-screen w-64 flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
@@ -49,16 +47,6 @@ export default function AppSidebar() {
         })}
       </nav>
 
-      {/* Theme Toggle */}
-      <div className="px-3 pb-4">
-        <button
-          onClick={toggleTheme}
-          className="flex w-full items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground transition-all duration-200"
-        >
-          {theme === 'light' ? <Moon className="h-4.5 w-4.5" /> : <Sun className="h-4.5 w-4.5" />}
-          {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-        </button>
-      </div>
     </aside>
   );
 }
