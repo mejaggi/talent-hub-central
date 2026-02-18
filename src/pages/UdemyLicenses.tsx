@@ -20,6 +20,7 @@ export default function UdemyLicenses() {
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [emailDialogOpen, setEmailDialogOpen] = useState(false);
   const [revokeDialogOpen, setRevokeDialogOpen] = useState(false);
+  const [revokeConfirm, setRevokeConfirm] = useState('');
   const [selectedTemplate, setSelectedTemplate] = useState<EmailTemplate | null>(null);
   const [emailSubject, setEmailSubject] = useState('');
   const [emailBody, setEmailBody] = useState('');
@@ -257,17 +258,28 @@ export default function UdemyLicenses() {
       </Dialog>
 
       {/* Revoke Dialog */}
-      <Dialog open={revokeDialogOpen} onOpenChange={setRevokeDialogOpen}>
+      <Dialog open={revokeDialogOpen} onOpenChange={(open) => { setRevokeDialogOpen(open); if (!open) setRevokeConfirm(''); }}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Revoke Udemy Licenses</DialogTitle>
+            <DialogTitle className="text-destructive">⚠️ Revoke Udemy Licenses</DialogTitle>
           </DialogHeader>
-          <p className="text-sm text-muted-foreground">
-            Are you sure you want to revoke {selectedIds.size} Udemy license(s)? This action cannot be undone.
-          </p>
+          <div className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              You are about to revoke <span className="font-bold text-foreground">{selectedIds.size}</span> Udemy license(s). This action <span className="font-bold text-destructive">cannot be undone</span>.
+            </p>
+            <div className="max-h-32 overflow-y-auto rounded-md border border-border bg-muted/30 p-2 text-sm">
+              {filtered.filter(l => selectedIds.has(l.id)).map(l => (
+                <div key={l.id} className="py-1 text-muted-foreground">{l.employeeName} — <span className="text-xs">{l.employeeEmail}</span></div>
+              ))}
+            </div>
+            <div>
+              <label className="text-sm font-medium text-foreground">Type <span className="font-mono text-destructive">REVOKE</span> to confirm</label>
+              <Input value={revokeConfirm} onChange={e => setRevokeConfirm(e.target.value)} placeholder="REVOKE" className="mt-1" />
+            </div>
+          </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setRevokeDialogOpen(false)}>Cancel</Button>
-            <Button variant="destructive" onClick={revokeSelected}>Revoke Licenses</Button>
+            <Button variant="outline" onClick={() => { setRevokeDialogOpen(false); setRevokeConfirm(''); }}>Cancel</Button>
+            <Button variant="destructive" onClick={revokeSelected} disabled={revokeConfirm !== 'REVOKE'}>Revoke Licenses</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
