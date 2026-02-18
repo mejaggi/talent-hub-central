@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react';
 import { Mail, UserX, AlertTriangle, CheckCircle2, Clock, Users, Search, Send } from 'lucide-react';
 import { mockUdemyLicenses, defaultEmailTemplates, type UdemyLicense, type EmailTemplate } from '@/lib/mock-data';
+import { revokeUdemyLicenses } from '@/lib/api/udemy-api';
+import { sendO365Email, personalizeEmail } from '@/lib/api/o365-email';
 import StatCard from '@/components/StatCard';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -71,14 +73,42 @@ export default function UdemyLicenses() {
     setEmailBody(tpl.body);
   };
 
-  const sendEmails = () => {
-    toast({ title: 'Emails queued', description: `${selectedIds.size} email(s) will be sent via MS O365.` });
+  const sendEmails = async () => {
+    const recipients = filtered
+      .filter(l => selectedIds.has(l.id))
+      .map(l => ({ name: l.employeeName, email: l.employeeEmail }));
+
+    try {
+      const result = await sendO365Email({
+        to: recipients,
+        subject: emailSubject,
+        body: emailBody,
+      });
+      toast({
+        title: 'Emails sent',
+        description: `${result.sent} email(s) sent via MS O365.${result.failed > 0 ? ` ${result.failed} failed.` : ''}`,
+      });
+    } catch (err: any) {
+      toast({ title: 'Email failed', description: err.message, variant: 'destructive' });
+    }
     setEmailDialogOpen(false);
     setSelectedIds(new Set());
   };
 
-  const revokeSelected = () => {
-    toast({ title: 'Licenses revoked', description: `${selectedIds.size} license(s) have been revoked.` });
+  const revokeSelected = async () => {
+    const emails = filtered
+      .filter(l => selectedIds.has(l.id))
+      .map(l => l.employeeEmail);
+
+    try {
+      const result = await revokeUdemyLicenses(emails);
+      toast({
+        title: 'Licenses revoked',
+        description: `${result.revoked} Udemy license(s) have been revoked.`,
+      });
+    } catch (err: any) {
+      toast({ title: 'Revoke failed', description: err.message, variant: 'destructive' });
+    }
     setRevokeDialogOpen(false);
     setSelectedIds(new Set());
   };
