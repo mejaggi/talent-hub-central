@@ -22,7 +22,7 @@ function downloadCSV(data: Training[]) {
 
 export default function Dashboard() {
   const [yearFilter, setYearFilter] = useState<string>('all');
-  const [last30Days, setLast30Days] = useState(false);
+  const [daysFilter, setDaysFilter] = useState<number | null>(null);
   const [skillFilter, setSkillFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -36,9 +36,9 @@ export default function Dashboard() {
     if (yearFilter !== 'all') {
       data = data.filter(t => (t.completionDate || t.startDate).startsWith(yearFilter));
     }
-    if (last30Days) {
+    if (daysFilter) {
       const cutoff = new Date();
-      cutoff.setDate(cutoff.getDate() - 30);
+      cutoff.setDate(cutoff.getDate() - daysFilter);
       data = data.filter(t => t.completionDate && new Date(t.completionDate) >= cutoff);
     }
     if (skillFilter !== 'all') {
@@ -57,7 +57,7 @@ export default function Dashboard() {
     }
 
     return data;
-  }, [yearFilter, last30Days, skillFilter, sourceFilter, searchQuery]);
+  }, [yearFilter, daysFilter, skillFilter, sourceFilter, searchQuery]);
 
   const stats = useMemo(() => {
     const completed = filtered.filter(t => t.status === 'Completed');
@@ -127,13 +127,16 @@ export default function Dashboard() {
           </SelectContent>
         </Select>
 
-        <Button
-          variant={last30Days ? 'default' : 'outline'}
-          size="sm"
-          onClick={() => setLast30Days(!last30Days)}
-        >
-          Last 30 Days
-        </Button>
+        {[30, 60, 90].map(days => (
+          <Button
+            key={days}
+            variant={daysFilter === days ? 'default' : 'outline'}
+            size="sm"
+            onClick={() => setDaysFilter(daysFilter === days ? null : days)}
+          >
+            Last {days} Days
+          </Button>
+        ))}
 
         <div className="relative ml-auto">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
