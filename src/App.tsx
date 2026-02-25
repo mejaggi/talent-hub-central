@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "@/hooks/use-theme";
+import { SyncProvider } from "@/contexts/SyncContext";
 import AppLayout from "@/components/AppLayout";
 import Dashboard from "@/pages/Dashboard";
 import UdemyLicenses from "@/pages/UdemyLicenses";
@@ -20,15 +21,17 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/udemy-licenses" element={<UdemyLicenses />} />
-              <Route path="/top-learners" element={<TopLearners />} />
-              <Route path="/incomplete-trainings" element={<IncompleteTrainings />} />
-            </Route>
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <SyncProvider>
+            <Routes>
+              <Route element={<AppLayout />}>
+                <Route path="/" element={<Dashboard />} />
+                <Route path="/udemy-licenses" element={<UdemyLicenses />} />
+                <Route path="/top-learners" element={<TopLearners />} />
+                <Route path="/incomplete-trainings" element={<IncompleteTrainings />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </SyncProvider>
         </BrowserRouter>
       </TooltipProvider>
     </ThemeProvider>

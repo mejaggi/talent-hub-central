@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Download, BookOpen, Clock, Users, CheckCircle2, Search, Filter, RefreshCw, Loader2 } from 'lucide-react';
-import { mockTrainings, type Training } from '@/lib/mock-data';
-import { useSyncData } from '@/hooks/use-sync-data';
+import { type Training } from '@/lib/mock-data';
+import { useSyncContext } from '@/contexts/SyncContext';
 import StatCard from '@/components/StatCard';
 import SourceBadge from '@/components/SourceBadge';
 import { Button } from '@/components/ui/button';
@@ -22,7 +22,7 @@ function downloadCSV(data: Training[]) {
 }
 
 export default function Dashboard() {
-  const { trainings, isSyncing, lastSyncedAt, triggerSync } = useSyncData(mockTrainings);
+  const { trainings, isSyncing, lastSyncedAt, triggerSync } = useSyncContext();
 
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [daysFilter, setDaysFilter] = useState<number | null>(null);

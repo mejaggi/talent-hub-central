@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Mail, UserX, AlertTriangle, CheckCircle2, Clock, Users, Search, Send } from 'lucide-react';
-import { mockUdemyLicenses, defaultEmailTemplates, type UdemyLicense, type EmailTemplate } from '@/lib/mock-data';
+import { defaultEmailTemplates, type UdemyLicense, type EmailTemplate } from '@/lib/mock-data';
+import { useSyncContext } from '@/contexts/SyncContext';
 import { revokeUdemyLicenses } from '@/lib/api/udemy-api';
 import { sendO365Email, personalizeEmail } from '@/lib/api/o365-email';
 import StatCard from '@/components/StatCard';
@@ -12,8 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
 import { toast } from '@/hooks/use-toast';
-
 export default function UdemyLicenses() {
+  const { licenses: allLicenses } = useSyncContext();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [inactiveFilter, setInactiveFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -25,7 +26,7 @@ export default function UdemyLicenses() {
   const [emailBody, setEmailBody] = useState('');
 
   const filtered = useMemo(() => {
-    let data = [...mockUdemyLicenses];
+    let data = [...allLicenses];
     if (statusFilter !== 'all') data = data.filter(l => l.status === statusFilter);
     if (inactiveFilter !== 'all') {
       const days = parseInt(inactiveFilter);
@@ -36,14 +37,14 @@ export default function UdemyLicenses() {
       data = data.filter(l => l.employeeName.toLowerCase().includes(q) || l.department.toLowerCase().includes(q));
     }
     return data;
-  }, [statusFilter, inactiveFilter, searchQuery]);
+  }, [statusFilter, inactiveFilter, searchQuery, allLicenses]);
 
   const stats = useMemo(() => ({
-    total: mockUdemyLicenses.length,
-    active: mockUdemyLicenses.filter(l => l.status === 'Active').length,
-    atRisk: mockUdemyLicenses.filter(l => l.status === 'At Risk').length,
-    inactive: mockUdemyLicenses.filter(l => l.status === 'Inactive').length,
-  }), []);
+    total: allLicenses.length,
+    active: allLicenses.filter(l => l.status === 'Active').length,
+    atRisk: allLicenses.filter(l => l.status === 'At Risk').length,
+    inactive: allLicenses.filter(l => l.status === 'Inactive').length,
+  }), [allLicenses]);
 
   const toggleSelect = (id: string) => {
     const next = new Set(selectedIds);
