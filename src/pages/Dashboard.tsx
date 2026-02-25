@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
-import { Download, BookOpen, Clock, Users, CheckCircle2, Search, Filter } from 'lucide-react';
+import { Download, BookOpen, Clock, Users, CheckCircle2, Search, Filter, RefreshCw, Loader2 } from 'lucide-react';
 import { mockTrainings, type Training } from '@/lib/mock-data';
+import { useSyncData } from '@/hooks/use-sync-data';
 import StatCard from '@/components/StatCard';
 import SourceBadge from '@/components/SourceBadge';
 import { Button } from '@/components/ui/button';
@@ -21,17 +22,19 @@ function downloadCSV(data: Training[]) {
 }
 
 export default function Dashboard() {
+  const { trainings, isSyncing, lastSyncedAt, triggerSync } = useSyncData(mockTrainings);
+
   const [yearFilter, setYearFilter] = useState<string>('all');
   const [daysFilter, setDaysFilter] = useState<number | null>(null);
   const [skillFilter, setSkillFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
 
-  const skills = useMemo(() => [...new Set(mockTrainings.map(t => t.skillCategory))].sort(), []);
-  const years = useMemo(() => [...new Set(mockTrainings.map(t => t.completionDate ? t.completionDate.slice(0, 4) : t.startDate.slice(0, 4)))].sort().reverse(), []);
+  const skills = useMemo(() => [...new Set(trainings.map(t => t.skillCategory))].sort(), [trainings]);
+  const years = useMemo(() => [...new Set(trainings.map(t => t.completionDate ? t.completionDate.slice(0, 4) : t.startDate.slice(0, 4)))].sort().reverse(), [trainings]);
 
   const filtered = useMemo(() => {
-    let data = [...mockTrainings];
+    let data = [...trainings];
 
     if (yearFilter !== 'all') {
       data = data.filter(t => (t.completionDate || t.startDate).startsWith(yearFilter));
@@ -57,7 +60,7 @@ export default function Dashboard() {
     }
 
     return data;
-  }, [yearFilter, daysFilter, skillFilter, sourceFilter, searchQuery]);
+  }, [trainings, yearFilter, daysFilter, skillFilter, sourceFilter, searchQuery]);
 
   const stats = useMemo(() => {
     const completed = filtered.filter(t => t.status === 'Completed');
@@ -79,11 +82,22 @@ export default function Dashboard() {
           <h1 className="text-2xl font-bold text-foreground">Training Dashboard</h1>
           <p className="text-sm text-muted-foreground">Consolidated view across Udemy & CSOD</p>
         </div>
-        <Button onClick={() => downloadCSV(filtered)} className="gap-2">
-          <Download className="h-4 w-4" />
-          Export CSV
-        </Button>
+        <div className="flex gap-2">
+          <Button variant="outline" onClick={triggerSync} disabled={isSyncing} className="gap-2">
+            {isSyncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+            {isSyncing ? 'Syncing...' : 'Sync Data'}
+          </Button>
+          <Button onClick={() => downloadCSV(filtered)} className="gap-2">
+            <Download className="h-4 w-4" />
+            Export CSV
+          </Button>
+        </div>
       </div>
+      {lastSyncedAt && (
+        <p className="text-xs text-muted-foreground -mt-4">
+          Last synced: {new Date(lastSyncedAt).toLocaleString()}
+        </p>
+      )}
 
       {/* Stats */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
