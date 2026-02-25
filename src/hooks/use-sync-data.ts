@@ -11,10 +11,6 @@ interface UseSyncDataReturn {
   triggerSync: () => Promise<void>;
 }
 
-/**
- * Hook to manage synced training data with manual refresh.
- * Initialises with null (no data loaded) until first sync or mount.
- */
 export function useSyncData(initialTrainings: Training[] = [], initialLicenses: UdemyLicense[] = []): UseSyncDataReturn {
   const [trainings, setTrainings] = useState<Training[]>(initialTrainings);
   const [licenses, setLicenses] = useState<UdemyLicense[]>(initialLicenses);

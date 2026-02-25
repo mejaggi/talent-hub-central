@@ -1,6 +1,7 @@
 import { useState, useMemo } from 'react';
 import { AlertTriangle, Send, Search, Filter, Mail } from 'lucide-react';
-import { mockTrainings, defaultEmailTemplates, type Training } from '@/lib/mock-data';
+import { defaultEmailTemplates, type Training } from '@/lib/mock-data';
+import { useSyncContext } from '@/contexts/SyncContext';
 import { sendO365Email } from '@/lib/api/o365-email';
 import SourceBadge from '@/components/SourceBadge';
 import { Button } from '@/components/ui/button';
@@ -13,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { toast } from '@/hooks/use-toast';
 
 export default function IncompleteTrainings() {
+  const { trainings } = useSyncContext();
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [sourceFilter, setSourceFilter] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,7 +25,7 @@ export default function IncompleteTrainings() {
   const [emailBody, setEmailBody] = useState(defaultEmailTemplates[0].body);
 
   const incompleteTrainings = useMemo(() => {
-    let data = mockTrainings.filter(t => t.status === 'In Progress' || t.status === 'Not Started');
+    let data = trainings.filter(t => t.status === 'In Progress' || t.status === 'Not Started');
 
     if (statusFilter !== 'all') {
       data = data.filter(t => t.status === statusFilter);
@@ -40,7 +42,7 @@ export default function IncompleteTrainings() {
       );
     }
     return data;
-  }, [statusFilter, sourceFilter, searchQuery]);
+  }, [statusFilter, sourceFilter, searchQuery, trainings]);
 
   const toggleSelect = (id: string) => {
     setSelected(prev => {

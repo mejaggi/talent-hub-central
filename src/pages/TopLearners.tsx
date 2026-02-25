@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { Trophy, Flame, Clock, BookOpen } from 'lucide-react';
-import { mockTopLearners } from '@/lib/mock-data';
+import { useSyncContext } from '@/contexts/SyncContext';
+import type { TopLearner } from '@/lib/mock-data';
 import SourceBadge from '@/components/SourceBadge';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
-function LeaderboardCard({ learner, rank }: { learner: typeof mockTopLearners[0]; rank: number }) {
+function LeaderboardCard({ learner, rank }: { learner: TopLearner; rank: number }) {
   const isTop3 = rank <= 3;
   const medalColor = rank === 1 ? 'text-chart-warning' : rank === 2 ? 'text-muted-foreground' : rank === 3 ? 'text-chart-csod' : '';
 
@@ -44,11 +45,12 @@ function LeaderboardCard({ learner, rank }: { learner: typeof mockTopLearners[0]
 }
 
 export default function TopLearners() {
+  const { topLearners } = useSyncContext();
   const [tab, setTab] = useState('all');
 
   const filteredLearners = tab === 'all'
-    ? mockTopLearners
-    : mockTopLearners.filter(l => l.source === tab);
+    ? topLearners
+    : topLearners.filter(l => l.source === tab);
 
   const totalHours = filteredLearners.reduce((s, l) => s + l.totalHours, 0);
   const totalCourses = filteredLearners.reduce((s, l) => s + l.coursesCompleted, 0);
