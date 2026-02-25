@@ -225,7 +225,7 @@ export default function UdemyLicenses() {
       <Dialog open={emailDialogOpen} onOpenChange={setEmailDialogOpen}>
         <DialogContent className="max-w-2xl">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2"><Send className="h-5 w-5" /> Send Email via MS O365</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><Send className="h-5 w-5" /> Send Email</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div>
