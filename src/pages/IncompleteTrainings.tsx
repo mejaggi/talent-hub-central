@@ -282,7 +282,7 @@ export default function IncompleteTrainings() {
             <Button variant="outline" onClick={() => setEmailOpen(false)}>Cancel</Button>
             <Button onClick={handleSendEmail} className="gap-2">
               <Send className="h-4 w-4" />
-              Send Email
+              Send
             </Button>
           </DialogFooter>
         </DialogContent>
